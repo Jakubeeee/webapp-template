@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <navbar></navbar>
+    <navbar/>
     <router-view/>
   </div>
 </template>
@@ -11,7 +11,10 @@
 
   export default {
     name: 'App',
-    components: {Navbar}
+    components: {Navbar},
+    created() {
+      this.$store.dispatch('changeLanguage', 'en');
+    }
   }
 </script>
 

@@ -12,18 +12,6 @@
 
   <artifactId>frontend</artifactId>
 
-  <!--=======================DEPENDENCIES=======================-->
-  <dependencies>
-
-    <dependency>
-      <groupId>org.webjars.npm</groupId>
-      <artifactId>bulma</artifactId>
-      <version>0.6.0</version>
-    </dependency>
-
-  </dependencies>
-  <!--=====================DEPENDENCIES END=====================-->
-
   <build>
     <plugins>
       <plugin>

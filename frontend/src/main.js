@@ -1,26 +1,22 @@
 import Vue from 'vue'
 import App from './App'
-import router from './router'
-import Buefy from 'buefy'
-import VueI18n from 'vue-i18n'
+import store from './vuex/store'
+import router from './router/index'
+import buefy from 'buefy'
+import i18n from './language/lang'
 
-Vue.use(Buefy);
-Vue.use(VueI18n);
-
-const i18n = new VueI18n({
-  locale: 'en',
-  messages: {
-    'en': require('./messages/messages_en.json'),
-    'pl': require('./messages/messages_pl.json')
-  }
-});
+Vue.use(buefy);
 
 Vue.config.productionTip = false;
+Vue.config.debug = true;
+Vue.config.devTools = true;
 
 new Vue({
   el: '#app',
+  store,
   router,
   i18n,
   components: { App },
   template: '<App/>'
 });
+
