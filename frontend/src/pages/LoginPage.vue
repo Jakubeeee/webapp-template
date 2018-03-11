@@ -5,39 +5,43 @@
       <div class="container has-text-centered">
         <div class="column is-4 is-offset-4">
 
-          <h3 class="title has-text-grey">{{ $t('loginPage.header') }}</h3>
-          <p class="subtitle has-text-grey">{{ $t('loginPage.subHeader') }}</p>
+          <h3 class="title has-text-grey">{{ msg('header') }}</h3>
+          <p class="subtitle has-text-grey">{{ msg('subHeader') }}</p>
 
           <div class="box">
 
+            <!--PASSWORD-->
             <b-field>
               <b-input size="is-large" type="text" v-model="credentials.username" autofocus=""
-                       v-bind:placeholder="$t('loginPage.usernamePlaceholder')" icon="account">
+                       :placeholder="msg('usernamePlaceholder')" icon="account">
               </b-input>
             </b-field>
 
+            <!--PASSWORD CONFIRM-->
             <b-field>
               <b-input size="is-large" type="password" v-model="credentials.password"
-                       v-bind:placeholder="$t('loginPage.passwordPlaceholder')" icon="key-variant">
+                       :placeholder="msg('passwordPlaceholder')" icon="key-variant">
               </b-input>
             </b-field>
 
+            <!--REMEMBER ME-->
             <b-field>
               <b-checkbox>
-                {{ $t('loginPage.rememberMeLabel') }}
+                {{ msg('rememberMeLabel') }}
               </b-checkbox>
             </b-field>
 
-            <button class="button is-block is-info is-large is-fullwidth" v-on:click="login">
-              {{ $t('loginPage.loginButtonText') }}
+            <!--SUBMIT BUTTON-->
+            <button @click="login" class="button is-block is-info is-large is-fullwidth">
+              {{ msg('loginButtonText') }}
             </button>
 
           </div>
 
           <p class="has-text-grey">
-            <a href="#/signup">{{ $t('loginPage.signupLink') }}</a> &nbsp;·&nbsp;
-            <a href="#/forgotmypassword">{{ $t('loginPage.forgotMyPasswordLink') }}</a> &nbsp;·&nbsp;
-            <a href="#/help">{{ $t('loginPage.needHelpLink') }}</a>
+            <a href="#/signup">{{ msg('signupLink') }}</a> &nbsp;·&nbsp;
+            <a href="#/forgotmypassword">{{ msg('forgotMyPasswordLink') }}</a> &nbsp;·&nbsp;
+            <a href="#/help">{{ msg('needHelpLink') }}</a>
           </p>
 
         </div>
@@ -49,7 +53,7 @@
 
 <!--==========================SCRIPT==========================-->
 <script>
-  import axios from 'axios';
+  import {messageUtils} from '../mixins/messageUtils'
 
   export default {
     name: "loginPage",
@@ -61,6 +65,7 @@
         }
       }
     },
+    mixins: [messageUtils],
     methods: {
       login() {
         this.$store.dispatch('login', this.credentials);

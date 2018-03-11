@@ -4,19 +4,24 @@ import store from './vuex/store'
 import router from './router/index'
 import buefy from 'buefy'
 import i18n from './language/lang'
+import Vuelidate from 'vuelidate'
+import lodash from 'lodash';
 
 Vue.use(buefy);
+Vue.use(Vuelidate);
+Vue.use(lodash);
 
+Vue.config.devTools = true;
 Vue.config.productionTip = false;
 Vue.config.debug = true;
-Vue.config.devTools = true;
 
 new Vue({
   el: '#app',
   store,
   router,
   i18n,
-  components: { App },
+  Vuelidate,
+  components: {App},
   template: '<App/>'
 });
 

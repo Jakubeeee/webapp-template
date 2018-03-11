@@ -1,19 +1,14 @@
 package com.jakubeeee.webapptemplate.security.service;
 
+import com.jakubeeee.webapptemplate.security.exceptions.ValidationException;
 import com.jakubeeee.webapptemplate.security.persistence.entities.User;
 import com.jakubeeee.webapptemplate.security.persistence.repositories.UserRepository;
 import com.jakubeeee.webapptemplate.security.validation.forms.SignUpForm;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -35,9 +30,6 @@ public class UserService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    @Getter
-    private List<String> errorMessages = new ArrayList<>();
-
     @Transactional
     public void createUser(String username, String password, String email) {
         User user = new User(username, password, email);
@@ -48,7 +40,7 @@ public class UserService {
     }
 
     @Transactional
-    public void createUser(SignUpForm form) {
+    public void createUser(SignUpForm form) throws ValidationException {
         validateFormData(form);
         User user = buildUserUsingFormData(form);
         roleService.grantRoles(user, BASIC_USER);
@@ -57,14 +49,11 @@ public class UserService {
         securityService.authenticate(user);
     }
 
-    private void validateFormData(SignUpForm form) {
-        Optional<User> userO;
-        userO = userRepository.findByUsername(form.getUsername());
-        if (userO.isPresent())
-            errorMessages.add("Username already taken");
-        userO = userRepository.findByEmail(form.getEmail());
-        if (userO.isPresent())
-            errorMessages.add("Email already taken");
+    private void validateFormData(SignUpForm form) throws ValidationException {
+        boolean isUsernameUnique = isUsernameUnique(form.getUsername());
+        if (!isUsernameUnique) throw new ValidationException("Username already registered");
+        boolean isEmailUnique = isEmailUnique(form.getEmail());
+        if (!isEmailUnique) throw new ValidationException("Email already registered");
     }
 
     private User buildUserUsingFormData(SignUpForm form) {
@@ -84,6 +73,16 @@ public class UserService {
     public void updateUserPassword(long userId, String password) {
         password = passwordEncoder.encode(password);
         userRepository.updateUserPassword(userId, password);
+    }
+
+    public boolean isUsernameUnique(String username) {
+        Optional<User> userO = userRepository.findByUsername(username);
+        return !userO.isPresent();
+    }
+
+    public boolean isEmailUnique(String email) {
+        Optional<User> userO = userRepository.findByEmail(email);
+        return !userO.isPresent();
     }
 
     public User findById(long id) {

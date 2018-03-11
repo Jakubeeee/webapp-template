@@ -5,30 +5,31 @@
       <div class="container has-text-centered">
         <div class="column is-4 is-offset-4">
 
-          <h3 class="title has-text-grey">{{ $t('forgotMyPasswordPage.header') }}</h3>
-          <p class="subtitle has-text-grey">{{ $t('forgotMyPasswordPage.subHeader') }}</p>
+          <h3 class="title has-text-grey">{{ msg('header') }}</h3>
+          <p class="subtitle has-text-grey">{{ msg('subHeader') }}</p>
 
           <div class="box">
 
+            <!--EMAIL-->
             <b-field>
-              <b-input size="is-large" type="text" v-model="email"
-                       v-bind:placeholder="$t('forgotMyPasswordPage.emailPlaceholder')"
+              <b-input size="is-large" type="text" v-model.trim="email" :placeholder="msg('emailPlaceholder')"
                        icon="email" autofocus="">
               </b-input>
             </b-field>
 
+            <!--SUBMIT BUTTON-->
             <p class="control">
-              <button class="button is-block is-info is-large is-fullwidth" v-on:click="sendPasswordResetToken">
-                {{ $t('forgotMyPasswordPage.sendButtonText') }}
+              <button @click="sendPasswordResetToken" class="button is-block is-info is-large is-fullwidth">
+                {{ msg('sendButtonText') }}
               </button>
             </p>
 
           </div>
 
           <p class="has-text-grey">
-            <a href="#/login">{{ $t('forgotMyPasswordPage.loginLink') }}</a> &nbsp;·&nbsp;
-            <a href="#/signup">{{ $t('forgotMyPasswordPage.signupLink') }}</a> &nbsp;·&nbsp;
-            <a href="#/help">{{ $t('forgotMyPasswordPage.needHelpLink') }}</a>
+            <a href="#/login">{{ msg('loginLink') }}</a> &nbsp;·&nbsp;
+            <a href="#/signup">{{ msg('signupLink') }}</a> &nbsp;·&nbsp;
+            <a href="#/help">{{ msg('needHelpLink') }}</a>
           </p>
 
         </div>
@@ -41,6 +42,7 @@
 <!--==========================SCRIPT==========================-->
 <script>
   import axios from 'axios'
+  import {messageUtils} from '../mixins/messageUtils'
 
   export default {
     name: "forgotMyPasswordPage",
@@ -49,6 +51,7 @@
         email: ''
       }
     },
+    mixins: [messageUtils],
     methods: {
       sendPasswordResetToken() {
         axios('/forgotMyPassword', {

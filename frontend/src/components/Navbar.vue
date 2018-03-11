@@ -1,61 +1,61 @@
 <!--=========================TEMPLATE=========================-->
 <template>
-  <nav class="navbar is-white is-fixed-top">
+  <nav class="navbar is-white">
     <div class="container">
       <div class="navbar-brand">
         <a class="navbar-item brand-text" href="#/">
-          {{ $t('navbar.webAppButtonText') }}
+          {{ msg('webAppButtonText') }}
         </a>
-        <div class="navbar-burger burger" data-target="navMenu">
+        <div class="navbar-burger burger" @click="toggleBurger" :class="{'is-active': burgerActive}"
+             data-target="navMenu">
           <span></span>
           <span></span>
           <span></span>
         </div>
       </div>
-      <div id="navMenu" class="navbar-menu">
+      <div id="navMenu" class="navbar-menu" :class="{'is-active': burgerActive}">
         <div class="navbar-start">
           <a class="navbar-item" href="#/">
-            {{ $t('navbar.homeButtonText') }}
+            {{ msg('homeButtonText') }}
           </a>
           <a class="navbar-item" href="#/about">
-            {{ $t('navbar.aboutButtonText') }}
+            {{ msg('aboutButtonText') }}
           </a>
           <a class="navbar-item" href="#/contact">
-            {{ $t('navbar.contactButtonText') }}
+            {{ msg('contactButtonText') }}
           </a>
         </div>
 
-        <div class="navbar-item" v-if="!this.$store.getters.authenticated">
+        <div class="navbar-item" v-if="!authenticated && !burgerActive">
           <a class="button is-success is-outlined navbar-item" href="#/login">
-            <span>{{ $t('navbar.loginButtonText') }}</span>
-            <span class="icon is-small">
-              <b-icon icon="login"></b-icon>
-            </span>
+            <span>{{ msg('loginButtonText') }}</span>
+            <b-icon icon="login"></b-icon>
           </a>
         </div>
 
-        <div class="navbar-item" v-if="this.$store.getters.authenticated">
-          <a class="button is-danger is-outlined navbar-item" v-on:click="logout">
-            <span>{{ $t('navbar.logoutButtonText') }}</span>
+        <div class="navbar-item" v-if="authenticated  && !burgerActive">
+          <a class="button is-danger is-outlined navbar-item" @click="logout">
+            <span>{{ msg('logoutButtonText') }}</span>
             <b-icon icon="logout"></b-icon>
           </a>
         </div>
 
-        <div class="navbar-item" v-if="!this.$store.getters.authenticated">
+        <div class="navbar-item" v-if="!authenticated  && !burgerActive">
           <a class="button is-success is-outlined navbar-item" href="#/signup">
-            <span>{{ $t('navbar.signupButtonText') }}</span>
+            <span>{{ msg('signupButtonText') }}</span>
             <b-icon icon="account-plus"></b-icon>
           </a>
         </div>
 
-        <b-dropdown class="navbar-item">
+        <b-dropdown class="navbar-item" v-if="!burgerActive">
           <button class="button" slot="trigger">
-            <span>{{ $t('navbar.chooseLanguageDropdownText') }}</span>
+            <span>{{ msg('chooseLanguageDropdownText') }}</span>
             <b-icon icon="menu-down"></b-icon>
           </button>
-          <b-dropdown-item v-on:click="changeLanguage('pl')">{{ $t('navbar.polishLanguageChoice') }}</b-dropdown-item>
-          <b-dropdown-item v-on:click="changeLanguage('en')">{{ $t('navbar.englishLanguageChoice') }}</b-dropdown-item>
+          <b-dropdown-item @click="changeLanguage('pl')">{{ msg('polishLanguageChoice') }}</b-dropdown-item>
+          <b-dropdown-item @click="changeLanguage('en')">{{ msg('englishLanguageChoice') }}</b-dropdown-item>
         </b-dropdown>
+
       </div>
     </div>
   </nav>
@@ -65,13 +65,21 @@
 <!--==========================SCRIPT==========================-->
 <script>
   import axios from 'axios'
+  import {messageUtils} from '../mixins/messageUtils'
+  import {mapGetters} from 'vuex'
 
   export default {
     name: "navbar",
     data() {
-      return {}
+      return {
+        burgerActive: false
+      }
     },
+    mixins: [messageUtils],
     methods: {
+      toggleBurger() {
+        this.burgerActive = !this.burgerActive;
+      },
       changeLanguage(locale) {
         this.$store.dispatch('changeLanguage', locale);
       },
@@ -82,6 +90,11 @@
           });
         });
       }
+    },
+    computed: {
+      ...mapGetters({
+        authenticated: 'authenticated'
+      }),
     }
   }
 </script>

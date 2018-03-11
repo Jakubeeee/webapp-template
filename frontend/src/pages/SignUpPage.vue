@@ -5,47 +5,90 @@
       <div class="container has-text-centered">
         <div class="column is-4 is-offset-4">
 
-          <h3 class="title has-text-grey">{{ $t('signUpPage.header') }}</h3>
-          <p class="subtitle has-text-grey">{{ $t('signUpPage.subHeader') }}</p>
+          <h3 class="title has-text-grey">{{ msg('header') }}</h3>
+          <p class="subtitle has-text-grey">{{ msg('subHeader') }}</p>
 
           <div class="box">
 
-            <b-field v-bind:label="$t('signUpPage.usernameLabel')">
-              <b-input size="is-large" type="text" v-model="credentials.username"
-                       icon="account" autofocus="">
-              </b-input>
+            <!--USERNAME-->
+            <b-field :label="msg('usernameLabel')" :type="$v.credentials.username.$error ? 'is-danger' : 'text'">
+              <b-input size="is-large" type="text" icon="account" @input="setUsername" autofocus=""></b-input>
+            </b-field>
+            <b-field class="help is-danger">
+              <span v-if="!$v.credentials.username.required && $v.credentials.username.$dirty">
+                {{ msg('fieldRequiredError') }}
+              </span>
+              <span v-else-if="!$v.credentials.username.minLength && $v.credentials.username.$dirty">
+                {{ msg('usernameTooShortError', [$v.credentials.username.$params.minLength.min]) }}
+              </span>
+              <span v-else-if="!$v.credentials.username.maxLength && $v.credentials.username.$dirty">
+                {{ msg('usernameTooLongError', [$v.credentials.username.$params.maxLength.max]) }}
+              </span>
+              <span v-else-if="!$v.credentials.username.uniqueUsername && $v.credentials.username.$dirty
+                     && !validationPending()">
+              {{ msg('usernameAlreadyRegisteredError') }}
+              </span>
             </b-field>
 
-            <b-field v-bind:label="$t('signUpPage.emailLabel')">
-              <b-input size="is-large" type="text" v-model="credentials.email"
-                       icon="email">
-              </b-input>
+            <!--EMAIL-->
+            <b-field :label="msg('emailLabel')" :type="$v.credentials.email.$error ? 'is-danger' : 'text'">
+              <b-input size="is-large" type="text" icon="email" @input="setEmail"></b-input>
+            </b-field>
+            <b-field class="help is-danger">
+              <span v-if="!$v.credentials.email.required && $v.credentials.email.$dirty">
+                {{ msg('fieldRequiredError') }}
+              </span>
+              <span v-else-if="!$v.credentials.email.email && $v.credentials.email.$dirty">
+                {{ msg('invalidEmailError') }}
+              </span>
+              <span v-else-if="!$v.credentials.email.uniqueEmail &&  $v.credentials.email.$dirty
+                    && !validationPending()">
+                {{ msg('emailAlreadyRegisteredError') }}
+              </span>
             </b-field>
 
-            <b-field v-bind:label="$t('signUpPage.passwordLabel')">
-              <b-input size="is-large" type="password" v-model="credentials.password"
-                       icon="key-variant">
+            <!--PASSWORD-->
+            <b-field :label="msg('passwordLabel')" :type="$v.credentials.password.$error ? 'is-danger' : 'text'">
+              <b-input size="is-large" type="password" v-model="credentials.password" icon="key-variant"
+                       @input="$v.credentials.passwordConfirm.$touch(); $v.credentials.password.$touch()">
               </b-input>
             </b-field>
-
-            <b-field v-bind:label="$t('signUpPage.passwordConfirmLabel')">
-              <b-input size="is-large" type="password" v-model="credentials.passwordConfirm"
-                       icon="key-variant">
-              </b-input>
+            <b-field class="help is-danger">
+              <span v-if="!$v.credentials.password.validPassword && $v.credentials.password.$dirty">
+                {{ msg('passwordRegexUnmatchedError',
+                [$v.credentials.password.$params.validPassword.min,
+                $v.credentials.password.$params.validPassword.max]) }}
+              </span>
             </b-field>
 
+            <!--PASSWORD CONFIRM-->
+            <b-field v-bind:label="msg('passwordConfirmLabel')"
+                     :type="$v.credentials.passwordConfirm.$error ? 'is-danger' : 'text'">
+              <b-input size="is-large" type="password" v-model="credentials.passwordConfirm" icon="key-variant"
+                       @input="$v.credentials.passwordConfirm.$touch(); $v.credentials.password.$touch()">
+              </b-input>
+            </b-field>
+            <b-field class="help is-danger">
+              <span v-if="!$v.credentials.passwordConfirm.sameAsPassword && $v.credentials.passwordConfirm.$dirty">
+                {{ msg('passwordDifferenceError') }}
+              </span>
+            </b-field>
+
+            <!--SUBMIT BUTTON-->
             <p class="control">
-              <button class="button is-block is-info is-large is-fullwidth" v-on:click="signup">
-                {{ $t('signUpPage.signUpButtonText') }}
+              <button @click="signup" class="button is-block is-info is-large is-fullwidth">
+                {{ msg('signUpButtonText') }}
               </button>
             </p>
 
           </div>
+
           <p class="has-text-grey">
-            <a href="#/login">{{ $t('signUpPage.loginLink') }}</a> &nbsp;·&nbsp;
-            <a href="#/forgotmypassword">{{ $t('signUpPage.forgotMyPasswordLink') }}</a> &nbsp;·&nbsp;
-            <a href="#/help">{{ $t('signUpPage.needHelpLink') }}</a>
+            <a href="#/login">{{ msg('loginLink') }}</a> &nbsp;·&nbsp;
+            <a href="#/forgotmypassword">{{ msg('forgotMyPasswordLink') }}</a> &nbsp;·&nbsp;
+            <a href="#/help">{{ msg('needHelpLink') }}</a>
           </p>
+
         </div>
       </div>
     </div>
@@ -56,6 +99,13 @@
 <!--==========================SCRIPT==========================-->
 <script>
   import axios from 'axios'
+  import {messageUtils} from '../mixins/messageUtils'
+  import {required, minLength, maxLength, email, sameAs} from 'vuelidate/lib/validators'
+  import validPassword from '../validation/validPassword'
+  import uniqueUsername from '../validation/uniqueUsername'
+  import uniqueEmail from '../validation/uniqueEmail'
+  import {validationUtils} from '../mixins/validationUtils'
+  import _ from 'lodash'
 
   export default {
     name: "signUpPage",
@@ -69,8 +119,10 @@
         }
       }
     },
+    mixins: [messageUtils, validationUtils],
     methods: {
       signup() {
+        // if (this.formInvalid() || this.validationPending()) return;
         axios('/createAccount', {
           method: "post",
           data: JSON.stringify(this.credentials),
@@ -79,10 +131,40 @@
             'Accept': 'application/json',
             'Content-Type': 'application/json'
           },
-        }).then(
-          () => {
-            this.$store.dispatch('login', this.credentials);
-          });
+        }).then(() => {
+          this.$store.dispatch('login', this.credentials);
+        });
+      },
+      setUsername:
+        _.debounce(function (value) {
+          this.$v.credentials.username.$touch();
+          this.credentials.username = value;
+        }, 300),
+      setEmail:
+        _.debounce(function (value) {
+          this.$v.credentials.email.$touch();
+          this.credentials.email = value;
+        }, 300)
+    },
+    validations: {
+      credentials: {
+        username: {
+          required,
+          minLength: minLength(6),
+          maxLength: maxLength(30),
+          uniqueUsername
+        },
+        email: {
+          required,
+          email,
+          uniqueEmail
+        },
+        password: {
+          validPassword: validPassword(8, 25)
+        },
+        passwordConfirm: {
+          sameAsPassword: sameAs('password')
+        }
       }
     }
   }

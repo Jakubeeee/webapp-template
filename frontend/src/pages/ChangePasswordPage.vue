@@ -5,23 +5,41 @@
       <div class="container has-text-centered">
         <div class="column is-4 is-offset-4">
 
-          <h3 class="title has-text-grey">{{ $t('changePasswordPage.header') }}</h3>
-          <p class="subtitle has-text-grey">{{ $t('changePasswordPage.subHeader') }}</p>
+          <h3 class="title has-text-grey">{{ msg('header') }}</h3>
+          <p class="subtitle has-text-grey">{{ msg('subHeader') }}</p>
 
           <div class="box">
 
-            <b-field v-bind:label="$t('changePasswordPage.passwordLabel')">
-              <b-input size="is-large" type="password" v-model="credentials.password" icon="key-variant" autofocus="">
+            <!--PASSWORD-->
+            <b-field :label="msg('passwordLabel')" :type="$v.credentials.password.$error ? 'is-danger' : 'text'">
+              <b-input size="is-large" type="password" v-model="credentials.password" icon="key-variant" autofocus=""
+                       @input="$v.credentials.passwordConfirm.$touch(); $v.credentials.password.$touch()">
               </b-input>
             </b-field>
-
-            <b-field v-bind:label="$t('changePasswordPage.passwordConfirmLabel')">
-              <b-input size="is-large" type="password" v-model="credentials.passwordConfirm" icon="key-variant">
-              </b-input>
+            <b-field class="help is-danger">
+              <span v-if="!$v.credentials.password.validPassword && $v.credentials.password.$dirty">
+                {{ msg('passwordRegexUnmatchedError',
+                [$v.credentials.password.$params.validPassword.min,
+                $v.credentials.password.$params.validPassword.max]) }}
+              </span>
             </b-field>
 
-            <button class="button is-block is-info is-large is-fullwidth" v-on:click="changePassword">
-              {{$t('changePasswordPage.changePasswordButtonText') }}
+            <!--PASSWORD CONFIRM-->
+            <b-field v-bind:label="msg('passwordConfirmLabel')"
+                     :type="$v.credentials.passwordConfirm.$error ? 'is-danger' : 'text'">
+              <b-input size="is-large" type="password" v-model="credentials.passwordConfirm" icon="key-variant"
+                       @input="$v.credentials.passwordConfirm.$touch(); $v.credentials.password.$touch()">
+              </b-input>
+            </b-field>
+            <b-field class="help is-danger">
+              <span v-if="!$v.credentials.passwordConfirm.sameAsPassword && $v.credentials.passwordConfirm.$dirty">
+                {{ msg('passwordDifferenceError') }}
+              </span>
+            </b-field>
+
+            <!--SUBMIT BUTTON-->
+            <button @click="changePassword" class="button is-block is-info is-large is-fullwidth">
+              {{ msg('changePasswordButtonText') }}
             </button>
 
           </div>
@@ -36,6 +54,10 @@
 <!--==========================SCRIPT==========================-->
 <script>
   import axios from 'axios'
+  import {sameAs} from 'vuelidate/lib/validators'
+  import validPassword from '../validation/validPassword'
+  import {messageUtils} from '../mixins/messageUtils'
+  import {validationUtils} from '../mixins/validationUtils'
 
   export default {
     name: "changePasswordPage",
@@ -49,8 +71,10 @@
         }
       }
     },
+    mixins: [messageUtils, validationUtils],
     methods: {
       changePassword() {
+        if (this.formInvalid()) return;
         axios('/changePassword', {
           method: "post",
           data: JSON.stringify(this.credentials),
@@ -63,6 +87,16 @@
           // TODO redirect only if password was changed successfully
           // this.$router.push('/');
         })
+      }
+    },
+    validations: {
+      credentials: {
+        password: {
+          validPassword: validPassword(8, 25)
+        },
+        passwordConfirm: {
+          sameAsPassword: sameAs('password')
+        }
       }
     },
     created() {

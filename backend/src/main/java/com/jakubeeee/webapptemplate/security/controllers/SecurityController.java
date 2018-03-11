@@ -1,19 +1,19 @@
 package com.jakubeeee.webapptemplate.security.controllers;
 
+import com.jakubeeee.webapptemplate.security.exceptions.ValidationException;
 import com.jakubeeee.webapptemplate.security.service.PasswordResetService;
 import com.jakubeeee.webapptemplate.security.service.SecurityService;
 import com.jakubeeee.webapptemplate.security.service.UserService;
 import com.jakubeeee.webapptemplate.security.validation.forms.ChangePasswordForm;
 import com.jakubeeee.webapptemplate.security.validation.forms.SignUpForm;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 @RestController
 public class SecurityController {
@@ -33,9 +33,8 @@ public class SecurityController {
     }
 
     @PostMapping("/createAccount")
-    public ResponseEntity<List<String>> handleCreateAccountRequest(@Validated @RequestBody SignUpForm form) {
+    public void handleCreateAccountRequest(@Validated @RequestBody SignUpForm form) throws ValidationException {
         userService.createUser(form);
-        return new ResponseEntity<>(userService.getErrorMessages(), HttpStatus.OK);
     }
 
     @PostMapping(path = "/forgotMyPassword", consumes = "text/plain")
