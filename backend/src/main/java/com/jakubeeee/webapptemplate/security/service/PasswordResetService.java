@@ -1,6 +1,7 @@
 package com.jakubeeee.webapptemplate.security.service;
 
 import com.jakubeeee.webapptemplate.core.service.LocaleService;
+import com.jakubeeee.webapptemplate.security.exceptions.ValidationException;
 import com.jakubeeee.webapptemplate.security.persistence.entities.PasswordResetToken;
 import com.jakubeeee.webapptemplate.security.persistence.entities.User;
 import com.jakubeeee.webapptemplate.security.persistence.repositories.PasswordResetTokenRepository;
@@ -39,10 +40,10 @@ public class PasswordResetService {
     private int TOKEN_LIFETIME_IN_MINUTES;
 
     public void handleForgotMyPasswordProcess(String email, String origin) {
-        PasswordResetToken resetToken = createPasswordResetToken(email);
-        User tokenOwner = resetToken.getUser();
-        String resetPasswordUrl = createResetPasswordUrl(origin, tokenOwner.getId(), resetToken.getValue());
-        sendEmailWithResetToken(tokenOwner, resetPasswordUrl);
+            PasswordResetToken resetToken = createPasswordResetToken(email);
+            User tokenOwner = resetToken.getUser();
+            String resetPasswordUrl = createResetPasswordUrl(origin, tokenOwner.getId(), resetToken.getValue());
+            sendEmailWithResetToken(tokenOwner, resetPasswordUrl);
     }
 
     @Transactional
@@ -74,27 +75,22 @@ public class PasswordResetService {
         emailService.sendMailMessage(mailMessage);
     }
 
-    public void changePassword(ChangePasswordForm form) {
+    public void changePassword(ChangePasswordForm form) throws ValidationException {
         try {
-
             if (StringUtils.isEmpty(form.getResetToken()) || form.getUserId() <= 0) {
-                return;
+                throw new ValidationException("Provided url parameters are invalid");
             }
-
             PasswordResetToken passwordResetToken = findByValue(form.getResetToken());
             User tokenOwner = passwordResetToken.getUser();
-
             if (tokenOwner.getId() != form.getUserId()) {
-                return;
+                throw new ValidationException("Unauthorized attempt to change password");
             }
-
             if (LocalDateTime.now(Clock.systemUTC()).isAfter(passwordResetToken.getExpiryDate())) {
-                return;
+                throw new ValidationException("Reset token has expired");
             }
-
             userService.updateUserPassword(tokenOwner.getId(), form.getPassword());
-
         } catch (NoSuchElementException ignored) {
+            throw new ValidationException("Reset owner not found");
         }
     }
 

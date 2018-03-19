@@ -13,7 +13,7 @@
     name: 'App',
     components: {Navbar},
     created() {
-      this.$store.dispatch('changeLanguage', 'en');
+      this.$i18n.locale = this.$store.getters.language;
     }
   }
 </script>
@@ -25,5 +25,9 @@
     line-height: 1.5;
     height: 100%;
     background: #ECF0F3;
+  }
+
+  .snackbar.is-bottom-left {
+    align-self: start;
   }
 </style>

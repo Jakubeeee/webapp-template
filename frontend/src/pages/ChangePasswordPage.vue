@@ -25,14 +25,17 @@
             </b-field>
 
             <!--PASSWORD CONFIRM-->
-            <b-field v-bind:label="msg('passwordConfirmLabel')"
+            <b-field :label="msg('passwordConfirmLabel')"
                      :type="$v.credentials.passwordConfirm.$error ? 'is-danger' : 'text'">
               <b-input size="is-large" type="password" v-model="credentials.passwordConfirm" icon="key-variant"
                        @input="$v.credentials.passwordConfirm.$touch(); $v.credentials.password.$touch()">
               </b-input>
             </b-field>
             <b-field class="help is-danger">
-              <span v-if="!$v.credentials.passwordConfirm.sameAsPassword && $v.credentials.passwordConfirm.$dirty">
+              <span v-if="!$v.credentials.passwordConfirm.required && $v.credentials.passwordConfirm.$dirty">
+                {{ msg('fieldRequiredError') }}
+              </span>
+              <span v-else-if="!$v.credentials.passwordConfirm.sameAsPassword && $v.credentials.passwordConfirm.$dirty">
                 {{ msg('passwordDifferenceError') }}
               </span>
             </b-field>
@@ -47,6 +50,7 @@
         </div>
       </div>
     </div>
+    <b-loading :active.sync="isLoading"></b-loading>
   </section>
 </template>
 <!--=======================TEMPLATE END=======================-->
@@ -54,10 +58,12 @@
 <!--==========================SCRIPT==========================-->
 <script>
   import axios from 'axios'
-  import {sameAs} from 'vuelidate/lib/validators'
-  import validPassword from '../validation/validPassword'
   import {messageUtils} from '../mixins/messageUtils'
+  import {required, sameAs} from 'vuelidate/lib/validators'
+  import validPassword from '../validation/validPassword'
   import {validationUtils} from '../mixins/validationUtils'
+  import {notificationUtils} from '../mixins/notificationUtils'
+  import {mapGetters} from 'vuex'
 
   export default {
     name: "changePasswordPage",
@@ -68,13 +74,24 @@
           resetToken: '',
           password: '',
           passwordConfirm: ''
-        }
+        },
+        isLoading: false
       }
     },
-    mixins: [messageUtils, validationUtils],
+    mixins: [messageUtils, validationUtils, notificationUtils],
     methods: {
       changePassword() {
-        if (this.formInvalid()) return;
+        if (this.formInvalid()) {
+          this.dangerSnackbar(this.msg('invalidFormNotification'));
+          this.credentials.password = '';
+          this.credentials.passwordConfirm = '';
+          return
+        }
+        if (this.cooldownActive) {
+          this.dangerSnackbar(this.msg('changeCooldownActiveNotification'));
+          return;
+        }
+        this.isLoading = true;
         axios('/changePassword', {
           method: "post",
           data: JSON.stringify(this.credentials),
@@ -84,10 +101,22 @@
             'Content-Type': 'application/json'
           },
         }).then(() => {
-          // TODO redirect only if password was changed successfully
-          // this.$router.push('/');
+          this.isLoading = false;
+          this.successSnackbar(this.msg('passwordChangedNotification'), 6000);
+          this.$store.dispatch('beginPasswordChangeCooldown');
+          this.$router.push('/login');
+        }).catch(() => {
+          this.isLoading = false;
+          this.dangerSnackbar(this.msg('changePasswordErrorNotification'));
+          this.credentials.password = '';
+          this.credentials.passwordConfirm = '';
         })
       }
+    },
+    computed: {
+      ...mapGetters({
+        cooldownActive: 'changePasswordCooldownActive'
+      }),
     },
     validations: {
       credentials: {
@@ -95,6 +124,7 @@
           validPassword: validPassword(8, 25)
         },
         passwordConfirm: {
+          required,
           sameAsPassword: sameAs('password')
         }
       }

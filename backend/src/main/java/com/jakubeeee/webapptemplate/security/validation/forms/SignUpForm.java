@@ -20,7 +20,7 @@ import java.io.Serializable;
 public class SignUpForm implements Serializable {
 
     @NotBlank
-    @Size(min = 8, max = 30)
+    @Size(min = 6, max = 30)
     String username;
 
     @NotBlank

@@ -10,25 +10,18 @@
 
           <div class="box">
 
-            <!--PASSWORD-->
+            <!--USERNAME-->
             <b-field>
-              <b-input size="is-large" type="text" v-model="credentials.username" autofocus=""
-                       :placeholder="msg('usernamePlaceholder')" icon="account">
+              <b-input size="is-large" type="text" v-model="credentials.username"
+                       :placeholder="msg('usernamePlaceholder')" icon="account" autofocus="">
               </b-input>
             </b-field>
 
-            <!--PASSWORD CONFIRM-->
+            <!--PASSWORD-->
             <b-field>
               <b-input size="is-large" type="password" v-model="credentials.password"
                        :placeholder="msg('passwordPlaceholder')" icon="key-variant">
               </b-input>
-            </b-field>
-
-            <!--REMEMBER ME-->
-            <b-field>
-              <b-checkbox>
-                {{ msg('rememberMeLabel') }}
-              </b-checkbox>
             </b-field>
 
             <!--SUBMIT BUTTON-->
@@ -47,6 +40,7 @@
         </div>
       </div>
     </div>
+    <b-loading :active.sync="isLoading"></b-loading>
   </section>
 </template>
 <!--=======================TEMPLATE END=======================-->
@@ -54,6 +48,7 @@
 <!--==========================SCRIPT==========================-->
 <script>
   import {messageUtils} from '../mixins/messageUtils'
+  import {notificationUtils} from '../mixins/notificationUtils'
 
   export default {
     name: "loginPage",
@@ -62,13 +57,21 @@
         credentials: {
           username: '',
           password: ''
-        }
+        },
+        isLoading: false
       }
     },
-    mixins: [messageUtils],
+    mixins: [messageUtils, notificationUtils],
     methods: {
       login() {
-        this.$store.dispatch('login', this.credentials);
+        this.isLoading = true;
+        this.$store.dispatch('login', this.credentials).then(() => {
+          this.isLoading = false;
+          if (!this.$store.getters.authenticated) {
+            this.dangerSnackbar(this.msg('invalidUsernameOrPasswordNotification'));
+            this.credentials.password = '';
+          }
+        });
       }
     }
   }

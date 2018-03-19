@@ -44,7 +44,7 @@ public class SecurityController {
     }
 
     @PostMapping("/changePassword")
-    public void handleChangePasswordRequest(@Validated @RequestBody ChangePasswordForm form) {
+    public void handleChangePasswordRequest(@Validated @RequestBody ChangePasswordForm form) throws ValidationException {
         passwordResetService.changePassword(form);
     }
 

@@ -64,7 +64,6 @@
 
 <!--==========================SCRIPT==========================-->
 <script>
-  import axios from 'axios'
   import {messageUtils} from '../mixins/messageUtils'
   import {mapGetters} from 'vuex'
 
@@ -84,11 +83,7 @@
         this.$store.dispatch('changeLanguage', locale);
       },
       logout() {
-        axios.post('/logout').then(() => {
-          this.$store.dispatch('setAuthenticated').then(() => {
-            this.$router.push('/login');
-          });
-        });
+        this.$store.dispatch('logout');
       }
     },
     computed: {

@@ -69,7 +69,10 @@
               </b-input>
             </b-field>
             <b-field class="help is-danger">
-              <span v-if="!$v.credentials.passwordConfirm.sameAsPassword && $v.credentials.passwordConfirm.$dirty">
+              <span v-if="!$v.credentials.passwordConfirm.required && $v.credentials.passwordConfirm.$dirty">
+                {{ msg('fieldRequiredError') }}
+              </span>
+              <span v-else-if="!$v.credentials.passwordConfirm.sameAsPassword && $v.credentials.passwordConfirm.$dirty">
                 {{ msg('passwordDifferenceError') }}
               </span>
             </b-field>
@@ -80,7 +83,6 @@
                 {{ msg('signUpButtonText') }}
               </button>
             </p>
-
           </div>
 
           <p class="has-text-grey">
@@ -92,6 +94,7 @@
         </div>
       </div>
     </div>
+    <b-loading :active.sync="isLoading"></b-loading>
   </section>
 </template>
 <!--=======================TEMPLATE END=======================-->
@@ -106,6 +109,8 @@
   import uniqueEmail from '../validation/uniqueEmail'
   import {validationUtils} from '../mixins/validationUtils'
   import _ from 'lodash'
+  import {notificationUtils} from '../mixins/notificationUtils'
+
 
   export default {
     name: "signUpPage",
@@ -116,13 +121,20 @@
           email: '',
           password: '',
           passwordConfirm: ''
-        }
+        },
+        isLoading: false
       }
     },
-    mixins: [messageUtils, validationUtils],
+    mixins: [messageUtils, validationUtils, notificationUtils],
     methods: {
       signup() {
-        // if (this.formInvalid() || this.validationPending()) return;
+        if (this.formInvalid()) {
+          this.dangerSnackbar(this.msg('invalidFormNotification'));
+          this.credentials.password = '';
+          this.credentials.passwordConfirm = '';
+          return
+        }
+        this.isLoading = true;
         axios('/createAccount', {
           method: "post",
           data: JSON.stringify(this.credentials),
@@ -132,18 +144,18 @@
             'Content-Type': 'application/json'
           },
         }).then(() => {
-          this.$store.dispatch('login', this.credentials);
-        });
+          this.$store.dispatch('login', this.credentials).then(() => this.isLoading = false);
+        })
       },
       setUsername:
         _.debounce(function (value) {
           this.$v.credentials.username.$touch();
-          this.credentials.username = value;
+          this.credentials.username = value.trim();
         }, 300),
       setEmail:
         _.debounce(function (value) {
           this.$v.credentials.email.$touch();
-          this.credentials.email = value;
+          this.credentials.email = value.trim();
         }, 300)
     },
     validations: {
@@ -163,6 +175,7 @@
           validPassword: validPassword(8, 25)
         },
         passwordConfirm: {
+          required,
           sameAsPassword: sameAs('password')
         }
       }

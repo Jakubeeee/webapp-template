@@ -57,21 +57,18 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  store.dispatch('setAuthenticated').then(() => {
-    if (to.meta.requiresAuth) {
-      if (store.getters.authenticated)
-        next();
-      else
-        next('/login');
-    }
-    else {
-      if (store.getters.authenticated) {
-        next('/');
-      }
-      else
-        next();
-    }
-  })
+  if (to.meta.requiresAuth) {
+    if (store.getters.authenticated)
+      next();
+    else
+      next('/login');
+  }
+  else {
+    if (store.getters.authenticated)
+      next('/');
+    else
+      next();
+  }
 });
 
 export default router;
