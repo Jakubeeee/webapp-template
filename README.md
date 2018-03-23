@@ -28,6 +28,8 @@ In order for mailing features to work, you need to add your email account creden
 Moreover, you may need to change your email account configuration in order for spring mail to use it.  
 Here you can find how to do that with gmail account:  
 https://sanaulla.info/2017/09/15/using-gmail-as-smtp-server-from-java-spring-boot-apps/
+If it still doesn't work, you may also need this:
+http://jafty.com/blog/unblocking-gmail-smtp-account-for-sending-emails-from-applications/
 
 This project also uses lombok library that needs to be configured properly in your IDE.  
 Examples for intelliJ IDEA and Eclipse:  

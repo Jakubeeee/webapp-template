@@ -39,6 +39,7 @@ public class PasswordResetService {
     @Value("${resetTokenLifetimeInMinutes}")
     private int TOKEN_LIFETIME_IN_MINUTES;
 
+    @Transactional
     public void handleForgotMyPasswordProcess(String email, String origin) {
             PasswordResetToken resetToken = createPasswordResetToken(email);
             User tokenOwner = resetToken.getUser();

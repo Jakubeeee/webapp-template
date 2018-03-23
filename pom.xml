@@ -22,7 +22,7 @@
 
     <properties>
         <main.basedir>${project.basedir}</main.basedir>
-        <start-class>pl.jakubeeee.webapptemplate.Application</start-class>
+        <start-class>com.jakubeeee.webapptemplate.Application</start-class>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
