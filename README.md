@@ -8,7 +8,7 @@ https://webapplicationtemplate.herokuapp.com
 
 ---
 
-####Features:  
+#### Features:  
 - Creating an account and logging into it
 - Forgot my password journey
 - User role authorization
@@ -17,7 +17,7 @@ https://webapplicationtemplate.herokuapp.com
 
 ---
 
-####Used technologies:
+#### Used technologies:
 
 - java 10
 - spring (boot, security, mvc, jpa (with hibernate), mail, aop) for backend
@@ -28,11 +28,11 @@ https://webapplicationtemplate.herokuapp.com
 
 ---
 
-####Building and configuration:
+#### Building and configuration:
 
 This project is built using maven. There are two groups of profiles used during build:
 - environmental (dev, prod): determines whether the application should be deployed locally or on a remote heroku server
-- build type (full-build, back-build): determines whether it should build the entire application from scratch, 
+- build type (full-build, back-build): determines whether it should build the entire application from scratch 
 or skip refreshing the frontend resources (choose if nothing has changed in them for faster build)
 
 Build requires selection of one profile from each group, 
@@ -43,7 +43,7 @@ The above command will build a local version of the application from scratch
 Deploying on a remote server requires:
 - having a heroku account
 - creatng heroku application and setting its name in the configuration of heroku-maven-plugin
- located in core/pom.xml file
+ located in webapp-template/pom.xml file
 - configuring heroku postgres database (https://devcenter.heroku.com/articles/heroku-postgresql)
 - setting heroku config vars needed in resources/application-prod.properties file 
 (eg SPRING_MAIL_SENDER_USERNAME and more)
@@ -64,7 +64,7 @@ https://projectlombok.org/setup/eclipse
 
 ---
 
-###Module overview:
+#### Module overview:
 
 This project consists of several maven modules:
 
@@ -72,4 +72,4 @@ This project consists of several maven modules:
 2) core - module containing application configuration from which the executable jar is built
 3) common - module containing general services and utils used by other modules
 4) security - module containing elements related to application security
-5) frontend - module that contains vue components and prepares them for spring boot
+5) frontend - module that contains vue components and prepares them to be served by spring
