@@ -3,7 +3,7 @@
   <nav class="navbar is-white">
     <div class="container">
       <div class="navbar-brand">
-        <a class="navbar-item brand-text" href="#/">
+        <a class="navbar-item brand-text" href="#/home">
           {{ msg('webAppButtonText') }}
         </a>
         <div class="navbar-burger burger" @click="toggleBurger" :class="{'is-active': burgerActive}"
@@ -15,7 +15,7 @@
       </div>
       <div id="navMenu" class="navbar-menu" :class="{'is-active': burgerActive}">
         <div class="navbar-start">
-          <a class="navbar-item" href="#/">
+          <a class="navbar-item" href="#/home">
             {{ msg('homeButtonText') }}
           </a>
           <a class="navbar-item" href="#/about">
@@ -108,7 +108,7 @@
     color: #8F99A3;
   }
 
-  .navbar-item, .navbar-link {
+  .navbar-item {
     font-size: 14px;
     font-weight: 700;
     padding: 10px;

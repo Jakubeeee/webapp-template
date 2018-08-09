@@ -27,6 +27,22 @@
     background: #ECF0F3;
   }
 
+  label {
+    color: rgb(122, 122, 122);
+  }
+
+  input {
+    font-weight: 300;
+  }
+
+  p {
+    font-weight: 700;
+  }
+
+  p.subtitle {
+    padding-top: 1rem;
+  }
+
   .snackbar.is-bottom-left {
     align-self: start;
   }

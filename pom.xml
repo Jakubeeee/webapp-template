@@ -1,54 +1,273 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--suppress ALL -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.0.0.M7</version>
     </parent>
-
     <groupId>com.jakubeeee</groupId>
     <artifactId>webapp-template</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
+    <name>Webapp Template</name>
+    <description>Simple spring boot + vue.js webapp template</description>
     <packaging>pom</packaging>
 
+    <scm>
+        <url>https://github.com/Jakubeeee/webapp-template</url>
+    </scm>
+
     <modules>
+        <module>core</module>
+        <module>common</module>
+        <module>security</module>
         <module>frontend</module>
-        <module>backend</module>
     </modules>
 
     <properties>
-        <main.basedir>${project.basedir}</main.basedir>
-        <start-class>com.jakubeeee.webapptemplate.Application</start-class>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
+        <start-class>com.jakubeeee.core.Application</start-class>
+
+        <maven.version>3.5.4</maven.version>
+        <java.version>10</java.version>
+        <node.version>v8.11.3</node.version>
+        <npm.version>5.6.0</npm.version>
+        <project.encoding>UTF-8</project.encoding>
+
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
+
+        <heroku.appname>webapplicationtemplate</heroku.appname>
+        <heroku.artifact.path>target/${project.build.finalName}.${project.packaging}</heroku.artifact.path>
+
+        <frontend.maven.plugin.version>1.6</frontend.maven.plugin.version>
+        <heroku.maven.plugin.version>2.0.5</heroku.maven.plugin.version>
     </properties>
 
-    <!--=======================DEPENDENCIES=======================-->
-    <dependencies>
+    <profiles>
+        <!-- PROFILE GROUP: BUILD PROFILES -->
+        <profile>
+            <id>full-build</id>
+            <properties>
+                <maven.build.type>full-build</maven.build.type>
+            </properties>
+        </profile>
+        <profile>
+            <id>back-build</id>
+            <properties>
+                <maven.build.type>back-build</maven.build.type>
+            </properties>
+        </profile>
 
-        <dependency>
-            <groupId>org.webjars.npm</groupId>
-            <artifactId>bulma</artifactId>
-            <version>0.6.0</version>
-        </dependency>
+        <!-- PROFILE GROUP: ENVIRONMENT PROFILES -->
+        <profile>
+            <id>dev</id>
+            <properties>
+                <maven.environment>dev</maven.environment>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <maven.environment>prod</maven.environment>
+            </properties>
+        </profile>
+    </profiles>
 
-    </dependencies>
-    <!--=====================DEPENDENCIES END=====================-->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.jakubeeee</groupId>
+                <artifactId>common</artifactId>
+                <version>1.0</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.jakubeeee</groupId>
+                <artifactId>security</artifactId>
+                <version>1.0</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.jakubeeee</groupId>
+                <artifactId>frontend</artifactId>
+                <version>1.0</version>
+                <type>pom</type>
+                <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.2</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>2.3.0</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.9.3</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.webjars.npm</groupId>
+                <artifactId>bulma</artifactId>
+                <version>0.7.1</version>
+                <scope>runtime</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <finalName>${project.artifactId}</finalName>
+
+        <pluginManagement>
+            <plugins>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <inherited>false</inherited>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <requireProperty>
+                                        <property>maven.build.type</property>
+                                        <message>You must launch maven build with at least one of following profiles:
+                                            full-build or back-build
+                                        </message>
+                                    </requireProperty>
+                                    <requireProperty>
+                                        <property>maven.environment</property>
+                                        <message>You must launch maven build with at least one of following profiles:
+                                            dev or prod
+                                        </message>
+                                    </requireProperty>
+                                </rules>
+                                <fail>true</fail>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <phase>initialize</phase>
+                            <goals>
+                                <goal>clean</goal>
+                            </goals>
+                            <configuration>
+                                <filesets>
+                                    <fileset>
+                                        <directory>src/main/webapp/public</directory>
+                                    </fileset>
+                                </filesets>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${project.parent.basedir}/core/src/main/resources/public</outputDirectory>
+                                <overwrite>true</overwrite>
+                                <resources>
+                                    <resource>
+                                        <directory>${project.parent.basedir}/frontend/target/dist</directory>
+                                        <includes>
+                                            <include>static/</include>
+                                            <include>index.html</include>
+                                        </includes>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <configuration>
+                        <archive>
+                            <addMavenDescriptor>false</addMavenDescriptor>
+                        </archive>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <configuration>
+                        <archive>
+                            <addMavenDescriptor>false</addMavenDescriptor>
+                        </archive>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>com.heroku.sdk</groupId>
+                    <artifactId>heroku-maven-plugin</artifactId>
+                    <version>${heroku.maven.plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <phase>install</phase>
+                            <goals>
+                                <goal>deploy</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <appName>${heroku.appname}</appName>
+                        <jdkVersion>${java.version}</jdkVersion>
+                        <includeTarget>false</includeTarget>
+                        <buildpacks>
+                            <buildpack>heroku/jvm</buildpack>
+                        </buildpacks>
+                        <includes>
+                            <include>${project.basedir}/${heroku.artifact.path}</include>
+                        </includes>
+                        <processTypes>
+                            <web>java -Dserver.port=$PORT -jar ${heroku.artifact.path}</web>
+                        </processTypes>
+                    </configuration>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+            </plugin>
+        </plugins>
+
+    </build>
 
     <repositories>
-        <repository>
-            <id>spring-snapshots</id>
-            <name>Spring Snapshots</name>
-            <url>https://repo.spring.io/snapshot</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
         <repository>
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
@@ -57,32 +276,16 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-            <repository>
-                <id>spring-releases</id>
-                <url>https://repo.spring.io/libs-release</url>
-            </repository>
     </repositories>
 
     <pluginRepositories>
         <pluginRepository>
-            <id>spring-snapshots</id>
-            <name>Spring Snapshots</name>
-            <url>https://repo.spring.io/snapshot</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
             <url>https://repo.spring.io/milestone</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>spring-releases</id>
-            <url>https://repo.spring.io/libs-release</url>
         </pluginRepository>
     </pluginRepositories>
 

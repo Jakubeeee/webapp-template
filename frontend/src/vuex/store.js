@@ -9,6 +9,7 @@ Vue.use(Vuex);
 
 const state = {
   authenticated: false,
+  activePage: '',
   language: 'en',
   resetEmailCooldownActive: false,
   changePasswordCooldownActive: false
@@ -16,6 +17,7 @@ const state = {
 
 const getters = {
   authenticated: state => state.authenticated,
+  activePage: state => state.activePage,
   language: state => state.language,
   resetEmailCooldownActive: state => state.resetEmailCooldownActive,
   changePasswordCooldownActive: state => state.changePasswordCooldownActive
@@ -24,6 +26,9 @@ const getters = {
 const mutations = {
   SET_AUTHENTICATED(state, newValue) {
     state.authenticated = newValue;
+  },
+  SET_ACTIVE_PAGE(state, newValue) {
+    state.activePage = newValue;
   },
   SET_LANGUAGE(state, newValue) {
     state.language = newValue;
@@ -45,7 +50,7 @@ const actions = {
       withCredentials: true
     }).then(() => {
       context.commit('SET_AUTHENTICATED', true);
-      router.push({path: '/'});
+      router.push({path: '/home'});
     }).catch(() => {
     })
   },
@@ -55,6 +60,9 @@ const actions = {
         router.push({path: '/login'});
       }
     )
+  },
+  registerPageChange: (context, pageName) => {
+    context.commit('SET_ACTIVE_PAGE', pageName);
   },
   beginResetEmailCooldown: (context) => {
     context.commit('SET_RESET_EMAIL_COOLDOWN_ACTIVE', true);

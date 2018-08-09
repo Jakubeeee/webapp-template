@@ -1,4 +1,15 @@
 # IntelliJ project files
-.idea
+out/
+gen/
+.idea/
 *.iml
 
+# Maven generated files
+target/
+public/
+
+# Npm and node files
+node/
+node_modules/
+dist/
+npm-debug.log
