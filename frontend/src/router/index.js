@@ -21,31 +21,31 @@ const router = new Router({
       path: '/login',
       name: 'loginPage',
       component: LoginPage,
-      meta: {requiresAuth: false}
+      meta: {protected: false}
     },
     {
       path: '/signup',
       name: 'signUpPage',
       component: SignUpPage,
-      meta: {requiresAuth: false}
+      meta: {protected: false}
     },
     {
       path: '/forgotmypassword',
       name: 'forgotMyPasswordPage',
       component: ForgotMyPasswordPage,
-      meta: {requiresAuth: false}
+      meta: {protected: false}
     },
     {
       path: '/changepassword',
       name: 'changePasswordPage',
       component: ChangePasswordPage,
-      meta: {requiresAuth: false}
+      meta: {protected: false}
     },
     {
       path: '/',
       name: 'contentParentPage',
       component: ContentParentPage,
-      meta: {requiresAuth: true},
+      meta: {protected: true},
       children: [
         {
           path: '',
@@ -55,23 +55,23 @@ const router = new Router({
           path: '/home',
           name: 'homePage',
           component: HomePage,
-          meta: {requiresAuth: true}
+          meta: {protected: true}
         },
         {
           path: '/example1',
           name: 'example1Page',
           component: Example1Page,
-          meta: {requiresAuth: true}
-        },        {
+          meta: {protected: true}
+        }, {
           path: '/example2',
           name: 'example2Page',
           component: Example2Page,
-          meta: {requiresAuth: true}
-        },        {
+          meta: {protected: true}
+        }, {
           path: '/example3',
           name: 'example3Page',
           component: Example3Page,
-          meta: {requiresAuth: true}
+          meta: {protected: true}
         }
       ]
     },
@@ -79,29 +79,31 @@ const router = new Router({
       path: '/about',
       name: 'aboutPage',
       component: AboutPage,
-      meta: {requiresAuth: true}
+      meta: {protected: true}
     },
     {
       path: '/contact',
       name: 'contactPage',
       component: ContactPage,
-      meta: {requiresAuth: true}
+      meta: {protected: true}
     }]
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.meta.requiresAuth) {
-    if (store.getters.authenticated)
-      next();
-    else
-      next('/login');
-  }
-  else {
-    if (store.getters.authenticated)
-      next('/home');
-    else
-      next();
-  }
+  store.dispatch('checkAuthenticated').then(() => {
+    if (to.meta.protected) {
+      if (store.getters.authenticated)
+        next();
+      else
+        next('/login');
+    }
+    else {
+      if (store.getters.authenticated)
+        next('/home');
+      else
+        next();
+    }
+  })
 });
 
 router.afterEach((to) => {

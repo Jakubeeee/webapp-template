@@ -28,7 +28,8 @@ public class MethodSequenceAspect {
         }
         Object result = joinPoint.proceed();
         LOG.info("Exiting method :\"" + joinPoint.getSignature().getName() +
-                "\" in class: \"" + joinPoint.getSignature().getDeclaringTypeName() + "\"");
+                "\" in class: \"" + joinPoint.getSignature().getDeclaringTypeName() + "\"" +
+                " with return value: \"" + result + "\"");
         return result;
     }
 }

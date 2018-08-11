@@ -61,6 +61,11 @@ const actions = {
       }
     )
   },
+  checkAuthenticated: async (context) => {
+    await axios.get('/isAuthenticated').then((response) => {
+      context.commit('SET_AUTHENTICATED', response.data)
+    })
+  },
   registerPageChange: (context, pageName) => {
     context.commit('SET_ACTIVE_PAGE', pageName);
   },
