@@ -4,7 +4,6 @@ import com.jakubeeee.security.exceptions.ValidationException;
 import com.jakubeeee.security.persistence.entities.User;
 import com.jakubeeee.security.persistence.repositories.UserRepository;
 import com.jakubeeee.security.validation.forms.SignUpForm;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,18 +18,20 @@ import static com.jakubeeee.security.persistence.entities.Role.Type.BASIC_USER;
 @Transactional(readOnly = true)
 public class UserService {
 
-    @Autowired
-    private RoleService roleService;
+    private final RoleService roleService;
 
-    @Autowired
-    private SecurityService securityService;
+    private final SecurityService securityService;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Lazy
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserService(RoleService roleService, SecurityService securityService, UserRepository userRepository, @Lazy PasswordEncoder passwordEncoder) {
+        this.roleService = roleService;
+        this.securityService = securityService;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Transactional
     public void createUser(String username, String password, String email) {
@@ -79,12 +80,12 @@ public class UserService {
 
     public boolean isUsernameUnique(String username) {
         Optional<User> userO = userRepository.findByUsername(username);
-        return !userO.isPresent();
+        return userO.isEmpty();
     }
 
     public boolean isEmailUnique(String email) {
         Optional<User> userO = userRepository.findByEmail(email);
-        return !userO.isPresent();
+        return userO.isEmpty();
     }
 
     public User findById(long id) {

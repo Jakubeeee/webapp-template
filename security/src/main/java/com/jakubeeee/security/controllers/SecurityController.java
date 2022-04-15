@@ -6,7 +6,7 @@ import com.jakubeeee.security.service.SecurityService;
 import com.jakubeeee.security.service.UserService;
 import com.jakubeeee.security.validation.forms.ChangePasswordForm;
 import com.jakubeeee.security.validation.forms.SignUpForm;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,17 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 
+@RequiredArgsConstructor
 @RestController
 public class SecurityController {
 
-    @Autowired
-    SecurityService securityService;
+    private final SecurityService securityService;
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    PasswordResetService passwordResetService;
+    private final PasswordResetService passwordResetService;
 
     @GetMapping("/isAuthenticated")
     public boolean isAuthenticated() {

@@ -1,16 +1,16 @@
 package com.jakubeeee.common.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 
+@RequiredArgsConstructor
 @Service
 public class EmailService {
 
-    @Autowired
-    MailSender mailSender;
+    private final MailSender mailSender;
 
     @Value("${spring.mail.username}")
     String SENDER_EMAIL_ADDRESS;

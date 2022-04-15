@@ -7,7 +7,7 @@ import com.jakubeeee.security.persistence.entities.PasswordResetToken;
 import com.jakubeeee.security.persistence.entities.User;
 import com.jakubeeee.security.persistence.repositories.PasswordResetTokenRepository;
 import com.jakubeeee.security.validation.forms.ChangePasswordForm;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
@@ -20,21 +20,18 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
+@RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
 public class PasswordResetService {
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    EmailService emailService;
+    private final EmailService emailService;
 
-    @Autowired
-    LocaleService messagesService;
+    private final LocaleService messagesService;
 
-    @Autowired
-    PasswordResetTokenRepository passwordResetTokenRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Value("${reset.token.lifetime.in.minutes}")
     private int TOKEN_LIFETIME_IN_MINUTES;

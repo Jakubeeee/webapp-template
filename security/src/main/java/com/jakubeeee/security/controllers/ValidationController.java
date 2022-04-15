@@ -1,16 +1,16 @@
 package com.jakubeeee.security.controllers;
 
 import com.jakubeeee.security.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+@RequiredArgsConstructor
 @RestController
 public class ValidationController {
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
 
     @PostMapping(path = "/isUsernameUnique", consumes = "text/plain")
     public boolean checkUsernameUniqueness(@RequestBody String username) {
