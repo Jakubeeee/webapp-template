@@ -5,7 +5,8 @@ import com.jakubeeee.security.persistence.entities.User;
 import com.jakubeeee.security.persistence.repositories.UserRepository;
 import com.jakubeeee.security.validation.forms.SignUpForm;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +28,9 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Lazy
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     @Transactional
     public void createUser(String username, String password, String email) {

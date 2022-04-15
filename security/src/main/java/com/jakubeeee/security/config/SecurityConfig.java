@@ -3,15 +3,13 @@ package com.jakubeeee.security.config;
 import com.jakubeeee.security.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -25,17 +23,27 @@ import java.security.SecureRandom;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    AuthenticationEntryPoint authenticationEntryPoint;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    AuthenticationSuccessHandler authenticationSuccessHandler;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
 
-    @Autowired
-    LogoutSuccessHandler logoutSuccessHandler;
+    private final AuthenticationSuccessHandler authenticationSuccessHandler;
+
+    private final LogoutSuccessHandler logoutSuccessHandler;
+
+    public SecurityConfig(UserService userService,
+                          @Lazy PasswordEncoder passwordEncoder,
+                          @Lazy AuthenticationEntryPoint authenticationEntryPoint,
+                          @Lazy AuthenticationSuccessHandler authenticationSuccessHandler,
+                          @Lazy LogoutSuccessHandler logoutSuccessHandler) {
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationEntryPoint = authenticationEntryPoint;
+        this.authenticationSuccessHandler = authenticationSuccessHandler;
+        this.logoutSuccessHandler = logoutSuccessHandler;
+    }
 
     private static final String SALT = "n&S!hd^&Rd)*YDh(*C&dtga9s";
 
@@ -60,7 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configureGlobal(AuthenticationManagerBuilder builder) throws Exception {
         builder
                 .userDetailsService(userService::findByUsername)
-                .passwordEncoder(passwordEncoder());
+                .passwordEncoder(passwordEncoder);
     }
 
     @Bean
